@@ -1,8 +1,10 @@
 package registry
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -106,5 +108,30 @@ Content.
 				t.Errorf("instructions = %q, want %q", skill.Instructions, tt.wantInstr)
 			}
 		})
+	}
+}
+
+func TestParseSkillMDFileTooLarge(t *testing.T) {
+	tmpDir := t.TempDir()
+	skillPath := filepath.Join(tmpDir, "SKILL.md")
+
+	// Create a file larger than MaxSkillFileSize
+	largeContent := `---
+name: large-skill
+description: A very large skill
+---
+
+` + strings.Repeat("x", MaxSkillFileSize+1)
+
+	if err := os.WriteFile(skillPath, []byte(largeContent), 0644); err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	_, err := ParseSkillMD(skillPath)
+	if err == nil {
+		t.Error("expected error for file too large, got nil")
+	}
+	if !errors.Is(err, ErrFileTooLarge) {
+		t.Errorf("expected ErrFileTooLarge, got %v", err)
 	}
 }

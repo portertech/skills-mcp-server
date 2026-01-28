@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"sync"
 
 	"github.com/portertech/skills/pkg/skill"
@@ -15,10 +17,11 @@ const skillFileName = "SKILL.md"
 
 // Registry manages skill discovery and retrieval.
 type Registry struct {
-	root   string
-	skills map[string]*skill.Skill
-	mu     sync.RWMutex
-	logger *slog.Logger
+	root     string
+	skills   map[string]*skill.Skill
+	toolName map[string]string // maps tool name -> skill name for collision detection
+	mu       sync.RWMutex
+	logger   *slog.Logger
 }
 
 // NewRegistry creates a new skill registry rooted at the given directory.
@@ -27,9 +30,10 @@ func NewRegistry(root string, logger *slog.Logger) *Registry {
 		logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	}
 	return &Registry{
-		root:   root,
-		skills: make(map[string]*skill.Skill),
-		logger: logger,
+		root:     root,
+		skills:   make(map[string]*skill.Skill),
+		toolName: make(map[string]string),
+		logger:   logger,
 	}
 }
 
@@ -39,6 +43,7 @@ func (r *Registry) Scan() error {
 	defer r.mu.Unlock()
 
 	r.skills = make(map[string]*skill.Skill)
+	r.toolName = make(map[string]string)
 
 	return filepath.WalkDir(r.root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -71,6 +76,18 @@ func (r *Registry) Scan() error {
 			return nil
 		}
 
+		// Check for tool name collision after normalization
+		toolName := ToolNameForSkill(s.Name)
+		if existingName, ok := r.toolName[toolName]; ok {
+			r.logger.Warn("tool name collision",
+				"tool_name", toolName,
+				"skill", s.Name,
+				"existing_skill", existingName,
+			)
+			return nil
+		}
+		r.toolName[toolName] = s.Name
+
 		r.skills[s.Name] = s
 		r.logger.Debug("discovered skill", "name", s.Name, "path", s.Path)
 
@@ -85,7 +102,7 @@ func (r *Registry) Get(name string) *skill.Skill {
 	return r.skills[name]
 }
 
-// List returns all discovered skills.
+// List returns all discovered skills sorted by name.
 func (r *Registry) List() []*skill.Skill {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -94,6 +111,9 @@ func (r *Registry) List() []*skill.Skill {
 	for _, s := range r.skills {
 		skills = append(skills, s)
 	}
+	sort.Slice(skills, func(i, j int) bool {
+		return skills[i].Name < skills[j].Name
+	})
 	return skills
 }
 
@@ -112,4 +132,13 @@ func (r *Registry) Count() int {
 // String returns a human-readable summary.
 func (r *Registry) String() string {
 	return fmt.Sprintf("Registry{root=%s, skills=%d}", r.root, r.Count())
+}
+
+// ToolNameForSkill converts a skill name to a valid MCP tool name.
+// Lowercases the name and replaces spaces and hyphens with underscores.
+func ToolNameForSkill(name string) string {
+	name = strings.ToLower(name)
+	name = strings.ReplaceAll(name, " ", "_")
+	name = strings.ReplaceAll(name, "-", "_")
+	return name
 }

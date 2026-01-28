@@ -139,3 +139,73 @@ Instructions.
 		t.Errorf("Count() = %d, want 1 (duplicate should be skipped)", reg.Count())
 	}
 }
+
+func TestRegistryToolNameCollision(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	skill1Dir := filepath.Join(tmpDir, "skill-one")
+	skill2Dir := filepath.Join(tmpDir, "skill_one")
+
+	if err := os.MkdirAll(skill1Dir, 0755); err != nil {
+		t.Fatalf("failed to create skill1 dir: %v", err)
+	}
+	if err := os.MkdirAll(skill2Dir, 0755); err != nil {
+		t.Fatalf("failed to create skill2 dir: %v", err)
+	}
+
+	// These two names will collide after normalization (both become "skill_one")
+	skill1Content := `---
+name: skill-one
+description: First skill with hyphen
+---
+
+Instructions for skill one.
+`
+	skill2Content := `---
+name: skill_one
+description: Second skill with underscore
+---
+
+Instructions for skill one variant.
+`
+
+	if err := os.WriteFile(filepath.Join(skill1Dir, "SKILL.md"), []byte(skill1Content), 0644); err != nil {
+		t.Fatalf("failed to write skill1: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(skill2Dir, "SKILL.md"), []byte(skill2Content), 0644); err != nil {
+		t.Fatalf("failed to write skill2: %v", err)
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	reg := NewRegistry(tmpDir, logger)
+
+	if err := reg.Scan(); err != nil {
+		t.Fatalf("Scan() error: %v", err)
+	}
+
+	// Only one should be registered due to tool name collision
+	if reg.Count() != 1 {
+		t.Errorf("Count() = %d, want 1 (collision should be detected)", reg.Count())
+	}
+}
+
+func TestToolNameForSkill(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"code-review", "code_review"},
+		{"Code Review", "code_review"},
+		{"my_skill", "my_skill"},
+		{"My-Skill-Name", "my_skill_name"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := ToolNameForSkill(tt.input)
+			if got != tt.want {
+				t.Errorf("ToolNameForSkill(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}

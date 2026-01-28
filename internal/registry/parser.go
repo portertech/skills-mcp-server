@@ -16,11 +16,25 @@ var (
 	ErrNoFrontmatter = errors.New("no YAML frontmatter found")
 	ErrMissingName   = errors.New("skill name is required")
 	ErrMissingDesc   = errors.New("skill description is required")
+	ErrFileTooLarge  = errors.New("skill file exceeds maximum size")
 )
+
+// MaxSkillFileSize is the maximum allowed size for a SKILL.md file (64KB).
+// This limit ensures skills remain token-efficient for LLM context windows.
+const MaxSkillFileSize = 64 << 10
 
 // ParseSkillMD parses a SKILL.md file and returns a Skill.
 // The file must contain YAML frontmatter between --- markers.
+// Returns ErrFileTooLarge if the file exceeds MaxSkillFileSize.
 func ParseSkillMD(path string) (*skill.Skill, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("stat skill file: %w", err)
+	}
+	if info.Size() > MaxSkillFileSize {
+		return nil, fmt.Errorf("%w: %d bytes (max %d)", ErrFileTooLarge, info.Size(), MaxSkillFileSize)
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open skill file: %w", err)

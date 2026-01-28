@@ -68,7 +68,7 @@ type SkillOutput struct {
 
 // registerSkillTool registers a single skill as an MCP tool.
 func (s *Server) registerSkillTool(sk *skill.Skill) {
-	toolName := toolNameForSkill(sk.Name)
+	toolName := registry.ToolNameForSkill(sk.Name)
 
 	tool := &mcp.Tool{
 		Name:        toolName,
@@ -96,15 +96,6 @@ func (s *Server) registerSkillTool(sk *skill.Skill) {
 
 	mcp.AddTool(s.mcp, tool, handler)
 	s.logger.Debug("registered skill tool", "name", toolName, "skill", sk.Name)
-}
-
-// toolNameForSkill converts a skill name to a valid tool name.
-// Replaces spaces and special characters with underscores.
-func toolNameForSkill(name string) string {
-	name = strings.ToLower(name)
-	name = strings.ReplaceAll(name, " ", "_")
-	name = strings.ReplaceAll(name, "-", "_")
-	return name
 }
 
 // formatSkillResponse formats a skill as a text response.
