@@ -1,0 +1,11 @@
+skills
+*.exe
+*.test
+*.out
+.git
+.gitignore
+.idea
+.vscode
+Dockerfile
+README.md
+testdata

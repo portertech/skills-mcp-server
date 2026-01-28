@@ -1,0 +1,145 @@
+// Package server implements the MCP server for exposing skills as tools.
+package server
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"strings"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/portertech/skills/internal/registry"
+	"github.com/portertech/skills/pkg/skill"
+)
+
+// Server wraps an MCP server that exposes skills as tools.
+type Server struct {
+	mcp      *mcp.Server
+	registry *registry.Registry
+	logger   *slog.Logger
+}
+
+// New creates a new skills MCP server.
+func New(reg *registry.Registry, logger *slog.Logger) *Server {
+	if logger == nil {
+		logger = slog.Default()
+	}
+
+	mcpServer := mcp.NewServer(
+		&mcp.Implementation{
+			Name:    "skills",
+			Version: "1.0.0",
+		},
+		&mcp.ServerOptions{
+			Instructions: "This server provides Claude-compatible skills as tools. " +
+				"Call a skill tool to receive expert instructions for that task.",
+			Logger: logger,
+		},
+	)
+
+	s := &Server{
+		mcp:      mcpServer,
+		registry: reg,
+		logger:   logger,
+	}
+
+	s.registerSkillTools()
+
+	return s
+}
+
+// registerSkillTools registers each skill as an MCP tool.
+func (s *Server) registerSkillTools() {
+	for _, sk := range s.registry.List() {
+		s.registerSkillTool(sk)
+	}
+}
+
+// SkillInput is the input type for skill tools (empty, no arguments needed).
+type SkillInput struct{}
+
+// SkillOutput is the output type for skill tools.
+type SkillOutput struct {
+	Name         string   `json:"name"`
+	Description  string   `json:"description"`
+	Instructions string   `json:"instructions"`
+	License      string   `json:"license,omitempty"`
+	AllowedTools []string `json:"allowed_tools,omitempty"`
+	Path         string   `json:"path"`
+}
+
+// registerSkillTool registers a single skill as an MCP tool.
+func (s *Server) registerSkillTool(sk *skill.Skill) {
+	toolName := toolNameForSkill(sk.Name)
+
+	tool := &mcp.Tool{
+		Name:        toolName,
+		Description: sk.Description,
+	}
+
+	handler := func(ctx context.Context, req *mcp.CallToolRequest, input SkillInput) (*mcp.CallToolResult, SkillOutput, error) {
+		output := SkillOutput{
+			Name:         sk.Name,
+			Description:  sk.Description,
+			Instructions: sk.Instructions,
+			License:      sk.License,
+			AllowedTools: sk.AllowedTools,
+			Path:         sk.Path,
+		}
+
+		result := &mcp.CallToolResult{
+			Content: []mcp.Content{
+				&mcp.TextContent{
+					Text: formatSkillResponse(sk),
+				},
+			},
+		}
+
+		return result, output, nil
+	}
+
+	mcp.AddTool(s.mcp, tool, handler)
+	s.logger.Debug("registered skill tool", "name", toolName, "skill", sk.Name)
+}
+
+// toolNameForSkill converts a skill name to a valid tool name.
+// Replaces spaces and special characters with underscores.
+func toolNameForSkill(name string) string {
+	name = strings.ToLower(name)
+	name = strings.ReplaceAll(name, " ", "_")
+	name = strings.ReplaceAll(name, "-", "_")
+	return "use_skill_" + name
+}
+
+// formatSkillResponse formats a skill as a text response.
+func formatSkillResponse(sk *skill.Skill) string {
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("# Skill: %s\n\n", sk.Name))
+	sb.WriteString(fmt.Sprintf("**Description:** %s\n\n", sk.Description))
+
+	if sk.License != "" {
+		sb.WriteString(fmt.Sprintf("**License:** %s\n\n", sk.License))
+	}
+
+	if len(sk.AllowedTools) > 0 {
+		sb.WriteString("**Allowed Tools:** ")
+		sb.WriteString(strings.Join(sk.AllowedTools, ", "))
+		sb.WriteString("\n\n")
+	}
+
+	sb.WriteString("---\n\n")
+	sb.WriteString("## Instructions\n\n")
+	sb.WriteString(sk.Instructions)
+
+	return sb.String()
+}
+
+// Run starts the MCP server with stdio transport.
+func (s *Server) Run(ctx context.Context) error {
+	s.logger.Info("starting skills MCP server",
+		"skills_count", s.registry.Count(),
+		"skills_root", s.registry.Root(),
+	)
+	return s.mcp.Run(ctx, &mcp.StdioTransport{})
+}
