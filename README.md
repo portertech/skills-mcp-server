@@ -1,6 +1,6 @@
 # Skills MCP Server
 
-An MCP (Model Context Protocol) server that exposes Claude-compatible skills as tools, enabling any MCP client to use them.
+A no-nonsense MCP (Model Context Protocol) server that exposes Claude-compatible skills as tools, enabling any agent with an MCP client to use them. Minimal by design, written in Go.
 
 ## Installation
 
