@@ -119,3 +119,9 @@ func (s *Server) Run(ctx context.Context) error {
 	)
 	return s.mcp.Run(ctx, &mcp.StdioTransport{})
 }
+
+// RunWithTransport starts the MCP server with a custom transport.
+// This is primarily useful for testing.
+func (s *Server) RunWithTransport(ctx context.Context, transport mcp.Transport) error {
+	return s.mcp.Run(ctx, transport)
+}
