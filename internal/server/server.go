@@ -104,7 +104,7 @@ func toolNameForSkill(name string) string {
 	name = strings.ToLower(name)
 	name = strings.ReplaceAll(name, " ", "_")
 	name = strings.ReplaceAll(name, "-", "_")
-	return "use_skill_" + name
+	return name
 }
 
 // formatSkillResponse formats a skill as a text response.

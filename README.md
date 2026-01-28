@@ -19,13 +19,13 @@ go build -o skills ./cmd/skills
 ### Docker
 
 ```bash
-docker pull ghcr.io/portertech/skills:latest
+docker pull portertech/skills-mcp-server:latest
 ```
 
 Or build locally:
 
 ```bash
-docker build -t skills:latest .
+docker build -t skills-mcp-server:latest .
 ```
 
 ## Usage
@@ -48,10 +48,10 @@ skills --verbose /path/to/skills
 
 ```bash
 # Run with skills directory mounted
-docker run -i -v ~/.skills:/skills:ro skills:latest /skills
+docker run -i --mount type=bind,src=$HOME/.skills,dst=/skills,readonly skills-mcp-server:latest /skills
 
 # List skills
-docker run -v ~/.skills:/skills:ro skills:latest --list /skills
+docker run --mount type=bind,src=$HOME/.skills,dst=/skills,readonly skills-mcp-server:latest --list /skills
 ```
 
 ## MCP Client Configuration
@@ -78,7 +78,7 @@ Add to your MCP configuration:
   "mcpServers": {
     "skills": {
       "command": "docker",
-      "args": ["run", "-i", "-v", "~/.skills:/skills:ro", "skills:latest", "/skills"]
+      "args": ["run", "-i", "--rm", "--mount", "type=bind,src=/path/to/skills,dst=/skills,readonly", "skills-mcp-server:latest", "/skills"]
     }
   }
 }
