@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/portertech/skills/pkg/skill"
+	"github.com/portertech/skills-mcp-server/pkg/skill"
 )
 
 const skillFileName = "SKILL.md"

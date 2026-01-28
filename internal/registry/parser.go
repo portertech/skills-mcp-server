@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/portertech/skills/pkg/skill"
+	"github.com/portertech/skills-mcp-server/pkg/skill"
 	"gopkg.in/yaml.v3"
 )
 

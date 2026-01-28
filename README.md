@@ -5,14 +5,14 @@ An MCP (Model Context Protocol) server that exposes Claude-compatible skills as 
 ## Installation
 
 ```bash
-go install github.com/portertech/skills/cmd/skills@latest
+go install github.com/portertech/skills-mcp-server/cmd/skills@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/portertech/skills.git
-cd skills
+git clone https://github.com/portertech/skills-mcp-server.git
+cd skills-mcp-server
 go build -o skills ./cmd/skills
 ```
 

@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/portertech/skills/internal/registry"
-	pkgskill "github.com/portertech/skills/pkg/skill"
+	"github.com/portertech/skills-mcp-server/internal/registry"
+	pkgskill "github.com/portertech/skills-mcp-server/pkg/skill"
 )
 
 func TestNew(t *testing.T) {

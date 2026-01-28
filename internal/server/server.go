@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/portertech/skills/internal/registry"
-	"github.com/portertech/skills/pkg/skill"
+	"github.com/portertech/skills-mcp-server/internal/registry"
+	"github.com/portertech/skills-mcp-server/pkg/skill"
 )
 
 // Server wraps an MCP server that exposes skills as tools.

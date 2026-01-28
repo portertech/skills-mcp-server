@@ -1,4 +1,4 @@
-module github.com/portertech/skills
+module github.com/portertech/skills-mcp-server
 
 go 1.23.0
 
