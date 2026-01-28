@@ -123,15 +123,31 @@ Detailed instructions for the AI to follow when using this skill.
 ## How It Works
 
 1. **Discovery**: The server scans the skills directory for `SKILL.md` files
-2. **Registration**: Each skill becomes an MCP tool (e.g., `use_skill_code_review`)
+2. **Registration**: Each skill becomes an MCP tool named after the skill
 3. **Invocation**: When a model calls the tool, it receives the skill's instructions
 4. **Execution**: The model follows the instructions to complete the task
+
+### Tool Naming
+
+Skill names are converted to valid MCP tool names:
+
+| Skill Name | Tool Name |
+|------------|----------|
+| `code-review` | `code_review` |
+| `My Skill` | `my_skill` |
+| `git-workflow` | `git_workflow` |
+
+The conversion:
+- Lowercases the name
+- Replaces spaces and hyphens with underscores
+
+**Note**: Skills that would produce the same tool name (e.g., `code-review` and `code_review`) are considered duplicates. The first one discovered is registered; subsequent collisions are skipped with a warning.
 
 ## Example Interaction
 
 **User**: "Review my pull request"
 
-**Model**: *Invokes `use_skill_code_review`*
+**Model**: *Invokes `code_review` tool*
 
 **Server returns**:
 ```
@@ -152,14 +168,25 @@ When reviewing code, follow these guidelines...
 
 ```bash
 # Run tests
-go test ./...
+make test
+
+# Run tests with coverage
+make test-cover
 
 # Build
-go build -o skills ./cmd/skills
+make build
+
+# Format code
+make fmt
+
+# Run all checks
+make ci
 
 # Test with sample skills
-./skills --list ./testdata/skills
+make list-test
 ```
+
+See `Makefile` for all available targets.
 
 ## License
 

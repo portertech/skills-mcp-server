@@ -13,10 +13,14 @@ import (
 )
 
 var (
+	// ErrNoFrontmatter is returned when a SKILL.md file lacks YAML frontmatter.
 	ErrNoFrontmatter = errors.New("no YAML frontmatter found")
-	ErrMissingName   = errors.New("skill name is required")
-	ErrMissingDesc   = errors.New("skill description is required")
-	ErrFileTooLarge  = errors.New("skill file exceeds maximum size")
+	// ErrMissingName is returned when a skill's frontmatter lacks the required name field.
+	ErrMissingName = errors.New("skill name is required")
+	// ErrMissingDesc is returned when a skill's frontmatter lacks the required description field.
+	ErrMissingDesc = errors.New("skill description is required")
+	// ErrFileTooLarge is returned when a SKILL.md file exceeds MaxSkillFileSize.
+	ErrFileTooLarge = errors.New("skill file exceeds maximum size")
 )
 
 // MaxSkillFileSize is the maximum allowed size for a SKILL.md file (64KB).
