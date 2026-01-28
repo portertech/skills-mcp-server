@@ -102,11 +102,6 @@ Skills are directories containing a `SKILL.md` file with YAML frontmatter:
 ---
 name: my-skill
 description: A brief description of what this skill does
-license: MIT
-allowed_tools:
-  - view
-  - grep
-  - bash
 ---
 
 # My Skill
@@ -124,11 +119,6 @@ Detailed instructions for the AI to follow when using this skill.
 
 - `name`: Unique skill identifier
 - `description`: Brief description shown in tool listings
-
-### Optional Fields
-
-- `license`: Skill license (e.g., MIT, Apache-2.0)
-- `allowed_tools`: List of tools the skill may use
 
 ## How It Works
 

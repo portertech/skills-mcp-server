@@ -9,12 +9,6 @@ type Skill struct {
 	// Description explains what the skill does (required).
 	Description string `yaml:"description"`
 
-	// License specifies the skill's license (optional).
-	License string `yaml:"license,omitempty"`
-
-	// AllowedTools lists tools the skill is allowed to use (optional).
-	AllowedTools []string `yaml:"allowed_tools,omitempty"`
-
 	// Instructions contains the markdown content after the YAML frontmatter.
 	Instructions string `yaml:"-"`
 

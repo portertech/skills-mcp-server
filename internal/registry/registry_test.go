@@ -30,7 +30,6 @@ Instructions for skill one.
 	skill2Content := `---
 name: skill-two
 description: Second test skill
-license: MIT
 ---
 
 Instructions for skill two.
@@ -70,8 +69,8 @@ Instructions for skill two.
 	if skill2 == nil {
 		t.Error("Get(skill-two) returned nil")
 	} else {
-		if skill2.License != "MIT" {
-			t.Errorf("skill2.License = %q, want %q", skill2.License, "MIT")
+		if skill2.Name != "skill-two" {
+			t.Errorf("skill2.Name = %q, want %q", skill2.Name, "skill-two")
 		}
 	}
 

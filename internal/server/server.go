@@ -60,12 +60,10 @@ type SkillInput struct{}
 
 // SkillOutput is the output type for skill tools.
 type SkillOutput struct {
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	Instructions string   `json:"instructions"`
-	License      string   `json:"license,omitempty"`
-	AllowedTools []string `json:"allowed_tools,omitempty"`
-	Path         string   `json:"path"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	Instructions string `json:"instructions"`
+	Path         string `json:"path"`
 }
 
 // registerSkillTool registers a single skill as an MCP tool.
@@ -82,8 +80,6 @@ func (s *Server) registerSkillTool(sk *skill.Skill) {
 			Name:         sk.Name,
 			Description:  sk.Description,
 			Instructions: sk.Instructions,
-			License:      sk.License,
-			AllowedTools: sk.AllowedTools,
 			Path:         sk.Path,
 		}
 
@@ -117,17 +113,6 @@ func formatSkillResponse(sk *skill.Skill) string {
 
 	sb.WriteString(fmt.Sprintf("# Skill: %s\n\n", sk.Name))
 	sb.WriteString(fmt.Sprintf("**Description:** %s\n\n", sk.Description))
-
-	if sk.License != "" {
-		sb.WriteString(fmt.Sprintf("**License:** %s\n\n", sk.License))
-	}
-
-	if len(sk.AllowedTools) > 0 {
-		sb.WriteString("**Allowed Tools:** ")
-		sb.WriteString(strings.Join(sk.AllowedTools, ", "))
-		sb.WriteString("\n\n")
-	}
-
 	sb.WriteString("---\n\n")
 	sb.WriteString("## Instructions\n\n")
 	sb.WriteString(sk.Instructions)

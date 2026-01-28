@@ -8,35 +8,27 @@ import (
 
 func TestParseSkillMD(t *testing.T) {
 	tests := []struct {
-		name        string
-		content     string
-		wantName    string
-		wantDesc    string
-		wantLicense string
-		wantTools   []string
-		wantInstr   string
-		wantErr     bool
+		name      string
+		content   string
+		wantName  string
+		wantDesc  string
+		wantInstr string
+		wantErr   bool
 	}{
 		{
 			name: "valid skill",
 			content: `---
 name: test-skill
 description: A test skill
-license: MIT
-allowed_tools:
-  - view
-  - grep
 ---
 
 # Test Skill
 
 These are the instructions.
 `,
-			wantName:    "test-skill",
-			wantDesc:    "A test skill",
-			wantLicense: "MIT",
-			wantTools:   []string{"view", "grep"},
-			wantInstr:   "# Test Skill\n\nThese are the instructions.",
+			wantName:  "test-skill",
+			wantDesc:  "A test skill",
+			wantInstr: "# Test Skill\n\nThese are the instructions.",
 		},
 		{
 			name: "minimal skill",
@@ -108,20 +100,6 @@ Content.
 
 			if skill.Description != tt.wantDesc {
 				t.Errorf("description = %q, want %q", skill.Description, tt.wantDesc)
-			}
-
-			if skill.License != tt.wantLicense {
-				t.Errorf("license = %q, want %q", skill.License, tt.wantLicense)
-			}
-
-			if len(skill.AllowedTools) != len(tt.wantTools) {
-				t.Errorf("allowed_tools len = %d, want %d", len(skill.AllowedTools), len(tt.wantTools))
-			} else {
-				for i, tool := range skill.AllowedTools {
-					if tool != tt.wantTools[i] {
-						t.Errorf("allowed_tools[%d] = %q, want %q", i, tool, tt.wantTools[i])
-					}
-				}
 			}
 
 			if skill.Instructions != tt.wantInstr {
