@@ -1,5 +1,5 @@
 # Binaries
-skills
+/skills
 *.exe
 *.exe~
 *.dll
