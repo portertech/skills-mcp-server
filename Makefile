@@ -77,8 +77,8 @@ docker-push: docker-buildx-setup
 		--tag $(DOCKER_REPO):latest \
 		--push .
 
-# Full publish workflow: login, build, and push
-docker-publish: docker-login docker-push
+# Publish to Docker Hub (assumes already logged in, or use docker-login first)
+docker-publish: docker-push
 
 # List skills in testdata
 list-test:
