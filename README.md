@@ -4,11 +4,15 @@ A no-nonsense MCP (Model Context Protocol) server that exposes Claude-compatible
 
 ## Installation
 
+Pre-built binaries are available on the [GitHub Releases](https://github.com/portertech/skills-mcp-server/releases) page.
+
+### Go Install
+
 ```bash
 go install github.com/portertech/skills-mcp-server/cmd/skills@latest
 ```
 
-Or build from source:
+### Build from Source
 
 ```bash
 git clone https://github.com/portertech/skills-mcp-server.git
