@@ -188,6 +188,36 @@ make list-test
 
 See `Makefile` for all available targets.
 
+### Release Process
+
+```bash
+# Check current version
+make version
+
+# Run all checks before release
+make ci
+
+# Create a release (runs ci, tags, and pushes to Docker Hub)
+make release VERSION=1.0.0
+```
+
+The `release` target:
+1. Runs `make ci` (lint + test)
+2. Creates an annotated git tag `v<VERSION>`
+3. Builds and pushes multi-arch Docker images to Docker Hub
+
+To release manually:
+
+```bash
+# Create and push tag
+make tag-version VERSION=1.0.0
+git push origin v1.0.0
+
+# Build and push Docker images
+make docker-login  # requires DOCKER_USERNAME and DOCKER_PASSWORD
+make docker-publish VERSION=1.0.0
+```
+
 ## License
 
 MIT

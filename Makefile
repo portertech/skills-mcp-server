@@ -1,4 +1,4 @@
-.PHONY: build build-all test lint fmt clean install docker docker-buildx-setup docker-login docker-push docker-publish
+.PHONY: build build-all test lint fmt clean install docker docker-buildx-setup docker-login docker-push docker-publish version tag-version release ci
 
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS := -ldflags="-s -w -X main.version=$(VERSION)"
@@ -86,3 +86,20 @@ list-test:
 
 # Run all checks (used in CI)
 ci: lint test
+
+# List version
+version:
+	@echo $(VERSION)
+
+# Create annotated git tag (requires VERSION to be set explicitly)
+tag-version:
+	@if [ "$(VERSION)" = "dev" ] || echo "$(VERSION)" | grep -q dirty; then \
+		echo "Error: VERSION must be set explicitly and not be 'dev' or dirty"; \
+		echo "Usage: make tag-version VERSION=1.0.0"; \
+		exit 1; \
+	fi
+	git tag -a "v$(VERSION)" -m "v$(VERSION)"
+
+# Full release: ci -> tag-version -> docker-publish
+# Usage: make release VERSION=1.0.0
+release: ci tag-version docker-publish
