@@ -80,9 +80,6 @@ func TestFormatSkillResponse(t *testing.T) {
 	if !strings.Contains(response, "**Description:** A test skill") {
 		t.Error("response missing description")
 	}
-	if !strings.Contains(response, "## Instructions") {
-		t.Error("response missing instructions header")
-	}
 	if !strings.Contains(response, "Do the thing.") {
 		t.Error("response missing instruction content")
 	}

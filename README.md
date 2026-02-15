@@ -161,8 +161,6 @@ The conversion:
 
 ---
 
-## Instructions
-
 When reviewing code, follow these guidelines...
 ```
 

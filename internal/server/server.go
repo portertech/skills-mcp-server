@@ -105,7 +105,6 @@ func formatSkillResponse(sk *skill.Skill) string {
 	sb.WriteString(fmt.Sprintf("# Skill: %s\n\n", sk.Name))
 	sb.WriteString(fmt.Sprintf("**Description:** %s\n\n", sk.Description))
 	sb.WriteString("---\n\n")
-	sb.WriteString("## Instructions\n\n")
 	sb.WriteString(sk.Instructions)
 
 	return sb.String()
